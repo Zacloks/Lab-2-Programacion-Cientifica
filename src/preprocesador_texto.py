@@ -1,6 +1,13 @@
 import re
+import nltk
+from nltk.corpus import stopwords
+
+nltk.download("stopwords", quiet = True)
 
 class PreprocesadorTexto:
+    def __init__(self):
+        self.stop_words = set(stopwords.words("english"))
+    
     def convertir_minusculas(self, texto):
         return texto.lower()
     
@@ -24,9 +31,8 @@ class PreprocesadorTexto:
         return texto.split()
 
     def quitar_stopwords(self, tokens):
-        stop_words = [] #Falta agregar stop words a la lista 
-        return [token for token in tokens if token not in stop_words]
-
+        return [token for token in tokens if token not in self.stop_words]
+    
     def procesar(self, df):
         df["texto_original"] = df["texto"]
         df["texto"] = df["texto"].apply(self.limpiar_texto)
