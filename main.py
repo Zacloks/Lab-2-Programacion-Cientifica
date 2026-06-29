@@ -4,6 +4,8 @@ from src.preprocesamiento.analizador_vocabulario import AnalizadorVocabulario
 from src.representacion.tfidf import VectorTF_IDF
 from src.visualizacion.exploratorio import VisualizacionYExplorador
 from src.generadorTexto.generador_texto import ModeloNGramas
+from src.sentimiento.analizador_sentimiento import AnalizadorSentimiento
+from src.sentimiento.visualizacion_sentimiento import VisualizacionSentimiento
 
 def main():
     cargador = CargadorDatos()
@@ -32,12 +34,30 @@ def main():
 
     for nombre, modelo in modelos.items():
         modelo.entrenar(df["tokens"])
-        
+
     print("\n--- Versículos Falsos ---")
     palabraInicio = "shall"
     for nombre, modelo in modelos.items():
         texto = modelo.generarTexto(palabraInicial = palabraInicio, longitudMax=15)
         print(f"{nombre}: [{texto}]")
+
+    analizador_sentimiento = AnalizadorSentimiento()
+    df = analizador_sentimiento.analizar(df)
+
+    print("\nDistribución de versículos por sentimiento:")
+    print(analizador_sentimiento.distribucion_etiquetas(df).to_string())
+
+    mas_positivos, mas_negativos = analizador_sentimiento.libros_extremos(df, 5)
+    print("\nLibros más positivos:")
+    print(mas_positivos[["nombre_libro", "sentimiento"]].to_string(index = False))
+    print("\nLibros más negativos:")
+    print(mas_negativos[["nombre_libro", "sentimiento"]].to_string(index = False))
+
+    visualizacion_sentimiento = VisualizacionSentimiento(df, analizador_sentimiento)
+    visualizacion_sentimiento.distribucion_sentimiento()
+    visualizacion_sentimiento.evolucion_por_libro()
+    visualizacion_sentimiento.evolucion_por_capitulo("Job")
+    visualizacion_sentimiento.libros_extremos(10)
 
 if __name__ == "__main__":
     main()
