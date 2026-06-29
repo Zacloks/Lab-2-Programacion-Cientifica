@@ -16,7 +16,7 @@ class VectorTF_IDF:
         """Inicializa el vocabulario, los IDF y el conteo de documentos."""
         self.vocabulario = {}
         self.idf = {}
-        self.totalDocumentos = {}
+        self.totalDocumentos = 0
 
     def ajustar(self, serie_tokens):
         """Aprende el vocabulario y los valores IDF a partir del corpus.
@@ -37,7 +37,8 @@ class VectorTF_IDF:
             tokensUnicos = set(tokens)
             for token in tokensUnicos:
                 if token not in self.vocabulario:
-                    self.vocabulario[token] =  indice
+                    self.vocabulario[token] = indice
+                    indice += 1
                 df_counts[token] = df_counts.get(token, 0) + 1
 
         for token, df in df_counts.items():

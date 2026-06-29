@@ -1,8 +1,15 @@
 import re
 import nltk
 from nltk.corpus import stopwords
-
 nltk.download("stopwords", quiet = True)
+
+stopwords_extras = {
+    "shall", "shalt", "unto", "thee", "thou", "thy", "thine", "ye",
+    "hath", "doth", "art", "thus",
+    "said", "saith", "saying", "say", "says",
+    "come", "came", "go", "went", "made", "let",
+    "one", "also", "upon", "yet", "us",
+}
 
 class PreprocesadorTexto:
     """Pipeline de limpieza y tokenización de versículos.
@@ -10,7 +17,7 @@ class PreprocesadorTexto:
     Aplica, versículo a versículo, las etapas básicas de preprocesamiento que
     pide el laboratorio: normalización a minúsculas, eliminación de puntuación,
     números y caracteres especiales, tokenización y eliminación de palabras
-    vacías (stopwords) del inglés.
+    vacías (stopwords) del inglés más una lista de palabras de dominio.
 
     El método de entrada es procesar, que recibe el DataFrame del corpus y
     devuelve el mismo DataFrame con las columnas texto_original, texto (ya
@@ -18,8 +25,12 @@ class PreprocesadorTexto:
     """
 
     def __init__(self):
-        """Carga el conjunto de stopwords del inglés provisto por NLTK."""
-        self.stop_words = set(stopwords.words("english"))
+        """Arma el conjunto de stopwords combinando NLTK y palabras extras."""
+
+        self.stop_words = (
+            set(stopwords.words("english")) |
+            stopwords_extras
+        )
 
     def convertir_minusculas(self, texto):
         """Convierte todo el texto a minúsculas para unificar el vocabulario."""

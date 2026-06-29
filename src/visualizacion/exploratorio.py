@@ -1,3 +1,4 @@
+from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sbn
 
@@ -28,12 +29,14 @@ class VisualizacionYExplorador:
         """
         plt.figure(figsize = (15, 6))
         conteo = self.df["nombre_libro"].value_counts()
-        sbn.barplot(x = conteo.index, y = conteo.values, palette = "viridis")
+        sbn.barplot(x = conteo.index, y = conteo.values, hue = conteo.index, palette = "viridis", legend = False)
         plt.xticks(rotation = 90)
         plt.title("Cantidad de Versículos por Libro")
         plt.xlabel("Libro")
         plt.ylabel("Número de Versículos")
-        plt.show()
+        Path("resultados").mkdir(exist_ok=True)
+        plt.savefig("resultados/versiculos_por_libro.png", bbox_inches = "tight")
+        plt.close()
 
     def graficoLongitud_Versiculos(self):
         """Grafica la distribución de la longitud de los versículos.
@@ -48,6 +51,8 @@ class VisualizacionYExplorador:
         plt.title("Distribución de la longitud de los Versículos (en tokens)")
         plt.xlabel("Cantidad de Tokens")
         plt.ylabel("Frecuencia")
-        plt.show()
+        Path("resultados").mkdir(exist_ok=True)
+        plt.savefig("resultados/longitud_versiculos.png", bbox_inches = "tight")
+        plt.close()
 
     # FALTA IMPLEMENTAR 1 MÁS A ELECCIÓN COMO MÍNIMO Y EL HEATMAP QUE ES OBLIGATORIO
