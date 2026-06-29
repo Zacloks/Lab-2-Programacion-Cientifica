@@ -2,6 +2,8 @@ from src.datos.cargador_datos import CargadorDatos
 from src.preprocesamiento.preprocesador_texto import PreprocesadorTexto
 from src.preprocesamiento.analizador_vocabulario import AnalizadorVocabulario
 from src.representacion.tfidf import VectorTF_IDF
+from src.representacion.similitud import Similitud
+from src.modelos.buscador_semantico import BuscadorSemantico
 from src.visualizacion.exploratorio import VisualizacionYExplorador
 from src.visualizacion.pca import VisualizacionPCA
 
@@ -92,6 +94,26 @@ def visualizar_pca(df):
     print(f"Varianza explicada: PC1 {round(pc1,2)}% / PC2 {round(pc2,2)}%")
     pca.graficar("testamento")
 
+def buscar_semantico(df):
+    """Demuestra el motor de búsqueda con una frase libre y un versículo real.
+
+    Parámetros
+    df : pandas.DataFrame
+        Corpus ya preprocesado.
+    """
+    print("\nEtapa 6: motor de búsqueda semántico")
+    buscador = BuscadorSemantico(df, VectorTF_IDF(), Similitud())
+
+    consultas = [
+        "love your enemies and pray",
+        "In the beginning God created the heavens and the earth",
+    ]
+    for consulta in consultas:
+        print(f"\nConsulta: {consulta!r}")
+        resultado = buscador.buscar(consulta, k = 5)
+        for _, fila in resultado.iterrows():
+            print(f"  [{fila['similitud']:.3f}] {fila['nombre_libro']} "
+                  f"{fila['numero_capitulo']}:{fila['numero_versiculo']} - {fila['texto_original']}")
 
 def main():
     df = cargar_preprocesar()
@@ -99,7 +121,7 @@ def main():
     demostrar_tfidf(df)
     visualizar_exploratorio(df)
     visualizar_pca(df)
-
+    buscar_semantico(df)
 
 if __name__ == "__main__":
     main()
