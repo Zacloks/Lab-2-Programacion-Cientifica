@@ -8,3 +8,5 @@ dependencies:
   - matplotlib
   - scikit-learn
   - networkx
+  - nltk
+  - seaborn
