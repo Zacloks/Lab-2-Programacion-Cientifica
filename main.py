@@ -3,6 +3,7 @@ from src.preprocesamiento.preprocesador_texto import PreprocesadorTexto
 from src.preprocesamiento.analizador_vocabulario import AnalizadorVocabulario
 from src.representacion.tfidf import VectorTF_IDF
 from src.visualizacion.exploratorio import VisualizacionYExplorador
+from src.clasificacion.clasificador_versiculos import ClasificadorVersiculos
 from src.generadorTexto.generador_texto import ModeloNGramas
 from src.sentimiento.analizador_sentimiento import AnalizadorSentimiento
 from src.sentimiento.visualizacion_sentimiento import VisualizacionSentimiento
@@ -23,6 +24,8 @@ def main():
     explorador = VisualizacionYExplorador(df)
     explorador.graficoLongitud_Versiculos()
     explorador.graficoVersiculos_por_Libro()
+    explorador.heatmap_similitud_libros()
+    explorador.grafico_palabras_frecuentes()
 
     print("\n=== 3.6 GENERADOR DE TEXTO ===")
     modelos = {
@@ -58,6 +61,12 @@ def main():
     visualizacion_sentimiento.evolucion_por_libro()
     visualizacion_sentimiento.evolucion_por_capitulo("Job")
     visualizacion_sentimiento.libros_extremos(10)
+
+    print("\n=== 3.5 CLASIFICADOR DE VERSÍCULOS ===")
+    clasificador = ClasificadorVersiculos()
+    resultado = clasificador.entrenar_evaluar(df)
+    print(f"Accuracy en prueba: {resultado['accuracy']:.2%}")
+    clasificador.graficar_matriz_confusion(resultado)
 
 if __name__ == "__main__":
     main()
