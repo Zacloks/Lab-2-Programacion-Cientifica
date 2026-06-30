@@ -1,33 +1,28 @@
 import math
 
 class VectorTF_IDF:
-    """Implementación propia de la representación TF-IDF.
+    """TF-IDF propio para representar versículos como vectores.
 
-    Calcula la importancia de cada palabra en un versículo combinando su
-    frecuencia dentro del documento (TF) con cuán rara es en todo el corpus
-    (IDF). El laboratorio exige implementar TF-IDF sin librerías que ya lo
-    provean, por lo que el cálculo se hace de forma manual.
-
-    El uso típico es llamar a ajustar con todos los documentos para aprender el
-    vocabulario y los IDF, y luego a transformar para vectorizar.
+    Combina la frecuencia de cada palabra en el documento (TF) con lo rara que
+    es en el corpus (IDF). La pauta pide implementarlo sin librerías. Se usa
+    llamando a ajustar y después a transformar.
     """
 
     def __init__(self):
-        """Inicializa el vocabulario, los IDF y el conteo de documentos."""
+        """Deja vacíos el vocabulario, los IDF y el conteo de documentos."""
         self.vocabulario = {}
         self.idf = {}
         self.totalDocumentos = 0
 
     def ajustar(self, serie_tokens):
-        """Aprende el vocabulario y los valores IDF a partir del corpus.
+        """Aprende el vocabulario y los IDF a partir del corpus.
 
-        Recorre todos los documentos contando en cuántos aparece cada palabra,
-        es decir su frecuencia de documento, y calcula el IDF de cada una como
-        el logaritmo del total de documentos dividido por esa frecuencia.
+        Cuenta en cuántos documentos aparece cada palabra y calcula su IDF como
+        el log del total de documentos dividido por esa cuenta.
 
         Parámetros
         serie_tokens : Iterable[list[str]]
-            Colección de documentos, cada uno una lista de tokens.
+            Documentos, cada uno una lista de tokens.
         """
         self.totalDocumentos = len(serie_tokens)
         df_counts = {}
@@ -45,20 +40,19 @@ class VectorTF_IDF:
             self.idf[token] = math.log(self.totalDocumentos / df)
 
     def calcularTF_IDF_Documento(self, tokens):
-        """Calcula el vector TF-IDF de un único documento.
+        """Calcula el vector TF-IDF de un documento.
 
-        El TF de cada término es su frecuencia relativa dentro del documento,
-        o sea sus apariciones divididas por el total de términos, multiplicada
-        por el IDF aprendido.
+        El TF es la frecuencia relativa de cada palabra en el documento,
+        multiplicada por su IDF.
 
         Parámetros
         tokens : list[str]
-            Tokens de un documento.
+            Tokens del documento.
 
         Retorna
         dict
-            Mapeo de cada palabra a su peso TF-IDF, en representación dispersa.
-            Un documento vacío devuelve un diccionario vacío.
+            Palabra a peso TF-IDF. Un documento vacío devuelve un diccionario
+            vacío.
         """
         tf_Documento = {}
         totalTerminos = len(tokens)
@@ -82,7 +76,7 @@ class VectorTF_IDF:
 
         Parámetros
         serie_tokens : pandas.Series
-            Serie cuyos elementos son listas de tokens.
+            Serie de listas de tokens.
 
         Retorna
         pandas.Series

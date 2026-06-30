@@ -2,51 +2,40 @@ import pandas as pd
 from pathlib import Path
 
 class CargadorDatos:
-    """Carga y unifica los archivos CSV del corpus bíblico.
+    """Carga los CSV del corpus bíblico y los une en un solo DataFrame.
 
-    El dataset está dividido en tres archivos relacionados: t_web.csv con los
-    versículos (texto y su ubicación libro/capítulo/versículo), key_english.csv
-    con el catálogo de libros (nombre, testamento, género) y
-    key_genre_english.csv con el catálogo de géneros literarios.
-
-    Esta clase los lee, normaliza los nombres de columnas a español y los une
-    en un único DataFrame listo para el preprocesamiento.
+    Lee los versículos, el catálogo de libros y el de géneros, pasa los
+    nombres de columnas a español y los junta por id_libro e id_genero.
     """
 
     def __init__(self):
-        """Fija la ruta a la carpeta data ubicada en la raíz del proyecto.
-
-        El archivo vive en src/datos/, por lo que se suben tres niveles para
-        llegar a la raíz del repositorio y desde ahí a la carpeta data.
-        """
+        """Apunta a la carpeta data, que está en la raíz del proyecto."""
         self.ruta = Path(__file__).resolve().parent.parent.parent / "data"
 
     def modificar_nombres_columnas(self, df, renombres):
-        """Renombra las columnas de un DataFrame.
+        """Renombra columnas de un DataFrame.
 
         Parámetros
         df : pandas.DataFrame
-            DataFrame al que se le renombrarán columnas.
+            DataFrame a modificar.
         renombres : dict
             Mapeo de nombre actual a nombre nuevo.
 
         Retorna
         pandas.DataFrame
-            DataFrame con las columnas renombradas.
+            El DataFrame con las columnas renombradas.
         """
         return df.rename(columns = renombres)
 
     def cargar_biblia(self):
         """Carga los tres CSV y los une en un único DataFrame.
 
-        La unión se hace primero por id_libro, para juntar cada versículo con
-        los datos de su libro, y luego por id_genero, para agregar el género
-        literario. Así cada fila final corresponde a un versículo enriquecido
-        con el nombre de su libro, su testamento y su género.
+        Une los versículos con sus libros por id_libro y luego con los géneros
+        por id_genero.
 
         Retorna
         pandas.DataFrame
-            Un versículo por fila, con su texto y sus metadatos jerárquicos.
+            Un versículo por fila, con su texto y sus metadatos.
         """
         df_versiculos = pd.read_csv(self.ruta / "t_web.csv", encoding="latin-1")
         df_libros = pd.read_csv(self.ruta / "key_english.csv", encoding="latin-1")

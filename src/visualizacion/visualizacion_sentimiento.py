@@ -1,38 +1,30 @@
+from pathlib import Path
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sbn
 
 class VisualizacionSentimiento:
-    """Visualizaciones del análisis de sentimiento del corpus.
+    """Visualizaciones del análisis de sentimiento.
 
-    Acompaña a AnalizadorSentimiento para cubrir el requerimiento 3.7:
-    representa gráficamente la evolución del tono emocional a lo largo de los
-    libros y capítulos, la distribución de los puntajes y los libros con
-    sentimiento más extremo.
-
-    Recibe el corpus ya puntuado (con la columna sentimiento) y una instancia
-    de AnalizadorSentimiento, cuyas agregaciones reutiliza para no duplicar la
-    lógica de cálculo.
+    Recibe el corpus ya puntuado y un AnalizadorSentimiento, cuyas agregaciones
+    reutiliza, y guarda los gráficos en resultados/.
     """
 
     def __init__(self, df, analizador):
-        """Guarda el corpus puntuado y el analizador con el que agregar datos.
+        """Guarda el corpus puntuado y el analizador.
 
         Parámetros
         df : pandas.DataFrame
             Corpus ya procesado por AnalizadorSentimiento.analizar.
         analizador : AnalizadorSentimiento
-            Analizador usado para obtener las agregaciones por libro y capítulo.
+            Analizador con las agregaciones por libro y capítulo.
         """
         self.df = df
         self.analizador = analizador
 
     def distribucion_sentimiento(self):
-        """Grafica la distribución de los puntajes de sentimiento por versículo.
-
-        Permite ver qué tan polarizado está el corpus y cuántos versículos caen
-        en la zona neutral cercana a cero.
-        """
+        """Grafica la distribución de los puntajes de sentimiento por versículo."""
         plt.figure(figsize = (10, 5))
         sbn.histplot(self.df["sentimiento"], bins = 50, kde = True, color = "mediumpurple")
         plt.axvline(0, color = "black", linestyle = "--", linewidth = 1)
@@ -40,15 +32,12 @@ class VisualizacionSentimiento:
         plt.xlabel("Puntaje de sentimiento")
         plt.ylabel("Cantidad de versículos")
         plt.tight_layout()
-        plt.show()
+        Path("resultados").mkdir(exist_ok = True)
+        plt.savefig("resultados/sentimiento_distribucion.png", bbox_inches = "tight")
+        plt.close()
 
     def evolucion_por_libro(self):
-        """Grafica el sentimiento promedio de cada libro en orden canónico.
-
-        Cada barra es un libro, ordenado desde Génesis hasta el último libro, y
-        se colorea según el testamento. La línea horizontal en cero separa el
-        tono positivo del negativo, mostrando la evolución emocional global.
-        """
+        """Grafica el sentimiento promedio de cada libro en orden canónico, por testamento."""
         por_libro = self.analizador.agregar_por_libro(self.df)
 
         plt.figure(figsize = (16, 6))
@@ -61,17 +50,16 @@ class VisualizacionSentimiento:
         plt.ylabel("Sentimiento promedio")
         plt.legend(title = "Testamento")
         plt.tight_layout()
-        plt.show()
+        Path("resultados").mkdir(exist_ok = True)
+        plt.savefig("resultados/sentimiento_por_libro.png", bbox_inches = "tight")
+        plt.close()
 
     def evolucion_por_capitulo(self, nombre_libro):
-        """Grafica la evolución del sentimiento capítulo a capítulo de un libro.
-
-        Muestra el arco emocional interno de un libro concreto, útil para libros
-        con una progresión narrativa marcada.
+        """Grafica el sentimiento capítulo a capítulo de un libro.
 
         Parámetros
         nombre_libro : str
-            Nombre del libro a graficar, tal como aparece en nombre_libro.
+            Nombre del libro a graficar.
         """
         por_capitulo = self.analizador.agregar_por_capitulo(self.df)
         datos_libro = por_capitulo[por_capitulo["nombre_libro"] == nombre_libro]
@@ -88,14 +76,16 @@ class VisualizacionSentimiento:
         plt.xlabel("Capítulo")
         plt.ylabel("Sentimiento promedio")
         plt.tight_layout()
-        plt.show()
+        Path("resultados").mkdir(exist_ok = True)
+        plt.savefig(f"resultados/sentimiento_capitulo_{nombre_libro}.png", bbox_inches = "tight")
+        plt.close()
 
     def libros_extremos(self, n = 10):
-        """Grafica los libros con sentimiento promedio más positivo y negativo.
+        """Grafica los libros con sentimiento más positivo y más negativo.
 
         Parámetros
         n : int
-            Cantidad de libros a mostrar en cada extremo (por defecto 10).
+            Cuántos libros mostrar de cada lado (por defecto 10).
         """
         mas_positivos, mas_negativos = self.analizador.libros_extremos(self.df, n)
         extremos = (
@@ -114,4 +104,6 @@ class VisualizacionSentimiento:
         plt.xlabel("Sentimiento promedio")
         plt.ylabel("Libro")
         plt.tight_layout()
-        plt.show()
+        Path("resultados").mkdir(exist_ok = True)
+        plt.savefig("resultados/sentimiento_libros_extremos.png", bbox_inches = "tight")
+        plt.close()

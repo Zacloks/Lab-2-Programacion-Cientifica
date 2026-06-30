@@ -6,29 +6,24 @@ from src.preprocesamiento.analizador_vocabulario import AnalizadorVocabulario
 
 
 class VisualizacionPCA:
-    """Visualización bidimensional de los versículos mediante PCA.
-    
-    Toma cada versículo, lo representa como vector TF-IDF, y aplica PCA para
-    comprimir esa representación de alta dimensión a solo dos componentes.
-    Así puede graficar cada versículo como un punto en un plano, y ver si
-    aparecen agrupaciones naturales por libro o testamento.
+    """Visualización 2D de los versículos con PCA.
 
-    Como trabajar con el vocabulario completo (miles de palabras) sería pesado,
-    se limita a las top_n palabras más frecuentes del corpus para construir la
-    matriz.
+    Representa cada versículo con su vector TF-IDF y usa PCA para bajarlo a dos
+    componentes, así puede graficar cada versículo como un punto y ver si se
+    agrupan por libro o testamento. Para que la matriz no sea tan pesada usa
+    solo las top_n palabras más frecuentes.
     """
 
     def __init__(self, df, tfidf, top_n=300):
-        """Prepara la matriz TF-IDF densa y calcula las componentes principales.
+        """Arma la matriz TF-IDF y calcula las dos componentes principales.
 
         Parámetros
         df : pandas.DataFrame
-            Corpus ya preprocesado, con la columna tokens y las columnas de
-            categoría (testamento, nombre_genero, nombre_libro).
+            Corpus preprocesado, con tokens y las columnas de categoría.
         tfidf : VectorTF_IDF
-            Instancia del TF-IDF propio; se ajusta aquí sobre el corpus.
+            TF-IDF propio; se ajusta aquí sobre el corpus.
         top_n : int
-            Cantidad de palabras más frecuentes a usar como dimensiones.
+            Cuántas palabras frecuentes usar como dimensiones.
         """
         self.df = df
         self.tfidf = tfidf
@@ -39,12 +34,11 @@ class VisualizacionPCA:
         self._construir_y_reducir()
 
     def _palabras_top(self):
-        """Obtiene las top_n palabras más frecuentes del corpus.
+        """Saca las top_n palabras más frecuentes del corpus.
 
         Retorna
         list[str]
-            Las palabras que formarán las columnas de la matriz, ordenadas de
-            mayor a menor frecuencia.
+            Las palabras que serán las columnas de la matriz.
         """
         analizador = AnalizadorVocabulario()
         analizador.calcular_frecuencias(self.df)
@@ -53,17 +47,16 @@ class VisualizacionPCA:
     def _construir_matriz(self, palabras_top):
         """Arma la matriz densa de versículos por palabras top.
 
-        Ajusta el TF-IDF sobre el corpus y, para cada versículo, llena una fila
-        con los pesos TF-IDF de las palabras top (cero donde la palabra no
-        aparece en ese versículo).
+        Llena cada fila con los pesos TF-IDF de las palabras top, con cero donde
+        la palabra no aparece.
 
         Parámetros
         palabras_top : list[str]
-            Palabras que definen las columnas de la matriz.
+            Palabras que definen las columnas.
 
         Retorna
         numpy.ndarray
-            Matriz de forma (cantidad de versículos, top_n).
+            Matriz de forma (versículos, top_n).
         """
         indice_columna = {
             palabra: i for i, palabra in enumerate(palabras_top)
@@ -83,10 +76,10 @@ class VisualizacionPCA:
         return matriz
 
     def _construir_y_reducir(self):
-        """Construye la matriz y aplica PCA para dejar dos componentes.
+        """Arma la matriz y le aplica PCA para dejar dos componentes.
 
-        Guarda en coordenadas el arreglo (versículos, 2) con PC1 y PC2, y en
-        varianza la proporción de varianza explicada por cada componente.
+        Guarda las coordenadas (versículos, 2) y la varianza explicada de cada
+        componente.
         """
         palabras_top = self._palabras_top()
         matriz = self._construir_matriz(palabras_top)
@@ -96,25 +89,23 @@ class VisualizacionPCA:
         self.varianza = pca.explained_variance_ratio_
 
     def varianza_explicada(self):
-        """Devuelve el porcentaje de varianza que captura cada componente.
+        """Devuelve el porcentaje de varianza de cada componente.
 
         Retorna
         tuple[float, float]
-            Porcentaje explicado por PC1 y por PC2.
+            Porcentaje de PC1 y PC2.
         """
         return self.varianza[0] * 100, self.varianza[1] * 100
 
     def graficar(self, categoria="testamento"):
         """Grafica los versículos en el plano de las dos componentes.
 
-        Cada punto es un versículo; el eje x es la primera componente principal
-        y el eje y la segunda. Los puntos se colorean según la categoría
-        indicada para poder distinguir agrupaciones.
+        Cada punto es un versículo y los colores van por la categoría indicada.
 
         Parámetros
         categoria : str
-            Columna del DataFrame usada para colorear (por defecto testamento;
-            también sirve nombre_genero o nombre_libro).
+            Columna usada para colorear (por defecto testamento; también sirve
+            nombre_genero o nombre_libro).
         """
         valores = self.df[categoria].to_numpy()
         pc1_pct, pc2_pct = self.varianza_explicada()

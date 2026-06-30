@@ -1,4 +1,5 @@
-import numpy as np
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import seaborn as sbn
 from scipy.sparse import csr_matrix
@@ -9,44 +10,26 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 from src.representacion.tfidf import VectorTF_IDF
 
 class ClasificadorVersiculos:
-    """Clasificador que predice a qué libro pertenece un versículo.
+    """Predice de qué libro es un versículo (3.5).
 
-    Implementa el requerimiento 3.5: dado un versículo, predice su libro de
-    origen. La entrada es la representación TF-IDF del versículo (calculada con
-    la implementación propia del equipo) y la etiqueta es el nombre del libro.
-
-    Se usa una máquina de vectores de soporte lineal (LinearSVC) como
-    clasificador. Es uno de los modelos más sólidos para clasificación de texto
-    con representaciones dispersas y de alta dimensión como TF-IDF, y entrena
-    rápido sobre las decenas de miles de versículos del corpus. La pauta solo
-    exige implementar a mano TF-IDF y la similitud del coseno, por lo que aquí
-    sí se puede apoyar en scikit-learn para el modelo y las métricas.
-
-    Predecir el libro exacto entre 66 posibles a partir de un único versículo
-    corto es una tarea muy difícil: los versículos son breves y comparten un
-    vocabulario común (Dios, rey, dijo...), así que el accuracy a nivel de libro
-    es bajo y apenas supera la baseline de predecir siempre el libro más grande.
-    Por eso el clasificador es parametrizable por etiqueta (entrenar_evaluar
-    acepta columna_etiqueta): con "nombre_libro" resuelve el requisito 3.5,
-    mientras que con "testamento" o "nombre_genero" se observa que el modelo sí
-    captura señal a granularidad más gruesa, un contraste muy útil para el
-    análisis del informe.
+    Usa el TF-IDF propio como entrada y un LinearSVC de scikit-learn como
+    modelo, que va bien con representaciones dispersas y entrena rápido.
+    Acertar el libro exacto entre 66 desde un versículo corto es difícil, así
+    que el accuracy es bajo; por eso entrenar_evaluar permite cambiar la
+    etiqueta (testamento, género) para comparar granularidades.
     """
 
     def __init__(self):
-        """Inicializa el vectorizador TF-IDF propio y el modelo LinearSVC."""
+        """Inicializa el TF-IDF propio y el modelo LinearSVC."""
         self.tfidf = VectorTF_IDF()
         self.modelo = LinearSVC(max_iter = 5000)
         self.entrenado = False
 
     def _a_matriz_dispersa(self, serie_vectores):
-        """Convierte los vectores TF-IDF dispersos en una matriz dispersa SciPy.
+        """Convierte los vectores TF-IDF dispersos en una matriz dispersa de SciPy.
 
-        Cada vector es un diccionario palabra a peso; se traduce cada palabra a
-        su índice de columna usando el vocabulario aprendido por el TF-IDF y se
-        arma una matriz dispersa en formato CSR, apta para scikit-learn. Se usa
-        una matriz dispersa porque la densa (versículos x vocabulario) tendría
-        cientos de millones de celdas casi todas en cero.
+        Usa el vocabulario del TF-IDF para mapear cada palabra a su columna. Se
+        usa matriz dispersa porque la densa tendría casi todo en cero.
 
         Parámetros
         serie_vectores : Iterable[dict]
@@ -54,7 +37,7 @@ class ClasificadorVersiculos:
 
         Retorna
         scipy.sparse.csr_matrix
-            Matriz de características de forma (n_versiculos, tamano_vocabulario).
+            Matriz de forma (n_versiculos, tamano_vocabulario).
         """
         indices_columna = []
         indices_fila = [0]
@@ -77,27 +60,23 @@ class ClasificadorVersiculos:
                          test_size = 0.2, random_state = 42):
         """Entrena el clasificador y lo evalúa sobre un conjunto de prueba.
 
-        Separa los versículos en entrenamiento y prueba de forma estratificada
-        por la etiqueta (para que todas las clases estén representadas en ambos
-        conjuntos), entrena el modelo con la partición de entrenamiento y mide
-        el accuracy sobre la de prueba.
+        Separa los datos de forma estratificada por la etiqueta, entrena y mide
+        el accuracy en prueba.
 
         Parámetros
         df : pandas.DataFrame
-            Corpus con la columna tokens y la columna de etiqueta elegida.
+            Corpus con tokens y la columna de etiqueta.
         columna_etiqueta : str
-            Columna que se usa como clase a predecir. Por defecto nombre_libro,
-            que resuelve el requisito 3.5; también admite, por ejemplo,
-            testamento o nombre_genero para analizar granularidades más gruesas.
+            Clase a predecir (por defecto nombre_libro; también testamento o
+            nombre_genero).
         test_size : float
-            Proporción de versículos reservados para prueba (por defecto 0.2).
+            Proporción para prueba (por defecto 0.2).
         random_state : int
-            Semilla para que la partición sea reproducible.
+            Semilla para reproducir la partición.
 
         Retorna
         dict
-            Con las claves accuracy, etiquetas (las clases en orden),
-            y_test e y_pred, para poder calcular la matriz de confusión.
+            Con accuracy, etiquetas, y_test e y_pred.
         """
         self.tfidf.ajustar(df["tokens"])
         vectores = self.tfidf.transformar(df["tokens"])
@@ -124,7 +103,7 @@ class ClasificadorVersiculos:
 
         Parámetros
         tokens : list[str]
-            Tokens del versículo (limpios y sin stopwords).
+            Tokens del versículo.
 
         Retorna
         str
@@ -139,14 +118,9 @@ class ClasificadorVersiculos:
     def graficar_matriz_confusion(self, resultado):
         """Grafica la matriz de confusión del conjunto de prueba.
 
-        Cada celda (i, j) cuenta cuántos versículos del libro i se predijeron
-        como del libro j. Una diagonal marcada indica buenas predicciones; los
-        valores fuera de la diagonal revelan entre qué libros se confunde el
-        modelo (típicamente libros con vocabulario o temática parecida).
-
         Parámetros
         resultado : dict
-            El diccionario devuelto por entrenar_evaluar.
+            Lo que devuelve entrenar_evaluar.
         """
         etiquetas = resultado["etiquetas"]
         matriz = confusion_matrix(resultado["y_test"], resultado["y_pred"],
@@ -161,4 +135,6 @@ class ClasificadorVersiculos:
         plt.xlabel("Libro predicho")
         plt.ylabel("Libro real")
         plt.tight_layout()
-        plt.show()
+        Path("resultados").mkdir(exist_ok = True)
+        plt.savefig("resultados/matriz_confusion.png", bbox_inches = "tight")
+        plt.close()

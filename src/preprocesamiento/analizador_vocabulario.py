@@ -2,33 +2,26 @@ from collections import Counter
 import pandas as pd
 
 class AnalizadorVocabulario:
-    """Etapas finales del preprocesamiento a nivel de corpus.
+    """Construye el vocabulario y cuenta las frecuencias de palabras del corpus.
 
-    Cubre los dos últimos pasos del pipeline que pide el laboratorio: la
-    construcción del vocabulario y el cálculo de frecuencias de palabras.
-
-    Opera sobre la columna tokens de un DataFrame que ya pasó por el
-    PreprocesadorTexto, es decir, texto limpio, tokenizado y sin stopwords.
+    Trabaja sobre la columna tokens de un DataFrame ya preprocesado.
     """
 
     def __init__(self):
-        """Inicializa el vocabulario y la tabla de frecuencias vacíos."""
+        """Deja el vocabulario y la tabla de frecuencias vacíos."""
         self.vocabulario = {}
         self.frecuencias = pd.DataFrame(columns = ["palabra", "frecuencia"])
 
     def _contar_tokens(self, df):
-        """Cuenta las apariciones de cada palabra en todo el corpus.
-
-        Es un método interno que recorre la columna tokens acumulando los
-        conteos de todos los versículos en un único contador.
+        """Cuenta cuántas veces aparece cada palabra en todo el corpus.
 
         Parámetros
         df : pandas.DataFrame
-            DataFrame con una columna tokens (listas de palabras).
+            Corpus con la columna tokens.
 
         Retorna
         collections.Counter
-            Contador con la forma palabra a número de apariciones en el corpus.
+            Conteo de palabra a número de apariciones.
         """
         contador = Counter()
         for tokens in df["tokens"]:
@@ -36,16 +29,15 @@ class AnalizadorVocabulario:
         return contador
 
     def calcular_frecuencias(self, df):
-        """Calcula la frecuencia global de cada palabra del corpus.
+        """Calcula la frecuencia de cada palabra del corpus.
 
         Parámetros
         df : pandas.DataFrame
-            DataFrame con una columna tokens.
+            Corpus con la columna tokens.
 
         Retorna
         pandas.DataFrame
-            Tabla con columnas palabra y frecuencia, ordenada de mayor a menor
-            frecuencia. También queda guardada en el atributo frecuencias.
+            Tabla con palabra y frecuencia, ordenada de mayor a menor.
         """
         contador = self._contar_tokens(df)
         self.frecuencias = (
@@ -56,20 +48,18 @@ class AnalizadorVocabulario:
         return self.frecuencias
 
     def construir_vocabulario(self, df):
-        """Construye el vocabulario del corpus a partir de las frecuencias.
+        """Arma el vocabulario asignando un índice a cada palabra.
 
-        Asigna a cada palabra única un índice entero estable, ordenado por
-        frecuencia descendente, de modo que la palabra más frecuente recibe el
-        índice 0. Si las frecuencias aún no se calcularon, las calcula primero.
+        Ordena por frecuencia, así la palabra más común queda con el índice 0.
+        Si no hay frecuencias calculadas, las calcula antes.
 
         Parámetros
         df : pandas.DataFrame
-            DataFrame con una columna tokens.
+            Corpus con la columna tokens.
 
         Retorna
         dict
-            Mapeo de cada palabra a su índice. También queda guardado en el
-            atributo vocabulario.
+            Mapeo de palabra a índice.
         """
         if self.frecuencias.empty:
             self.calcular_frecuencias(df)
@@ -80,15 +70,15 @@ class AnalizadorVocabulario:
         return self.vocabulario
 
     def tamano_vocabulario(self):
-        """Devuelve la cantidad de palabras únicas del vocabulario."""
+        """Devuelve cuántas palabras únicas tiene el vocabulario."""
         return len(self.vocabulario)
 
     def palabras_mas_comunes(self, n = 15):
-        """Devuelve las n palabras más frecuentes del corpus.
+        """Devuelve las n palabras más frecuentes.
 
         Parámetros
         n : int
-            Cantidad de palabras a retornar (por defecto 15).
+            Cuántas palabras devolver (por defecto 15).
 
         Retorna
         pandas.DataFrame
