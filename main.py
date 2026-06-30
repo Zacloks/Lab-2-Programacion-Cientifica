@@ -12,7 +12,7 @@ from src.modelos.generador_texto import ModeloNGramas
 from src.modelos.analizador_sentimiento import AnalizadorSentimiento
 
 def cargar_preprocesar():
-    """Carga el corpus y le aplica el preprocesamiento (3.1).
+    """Carga el corpus y le aplica el preprocesamiento.
 
     Retorna
     pandas.DataFrame
@@ -27,7 +27,7 @@ def cargar_preprocesar():
     return df
 
 def analizar_vocabulario(df):
-    """Construye el vocabulario y muestra las palabras más frecuentes (3.1).
+    """Construye el vocabulario y muestra las palabras más frecuentes.
 
     Parámetros
     df : pandas.DataFrame
@@ -39,7 +39,6 @@ def analizar_vocabulario(df):
     print(f"Tamaño del vocabulario: {analizador.tamano_vocabulario()} palabras únicas")
     print("\nTop 15 palabras más frecuentes:")
     print(analizador.palabras_mas_comunes(15).to_string(index = False))
-
 
 def demostrar_tfidf(df):
     """Ajusta el TF-IDF y muestra los términos con más peso de un versículo (3.1).
@@ -65,7 +64,6 @@ def demostrar_tfidf(df):
     for palabra, peso in pesos_ordenados[:5]:
         print(f"  {palabra:15s} {peso:.4f}")
 
-
 def visualizar_exploratorio(df):
     """Genera las visualizaciones exploratorias, incluido el heatmap (3.2).
 
@@ -80,7 +78,6 @@ def visualizar_exploratorio(df):
     explorador.grafico_palabras_frecuentes()
     explorador.heatmap_similitud_libros()
     print("Gráficos guardados en resultados/")
-
 
 def visualizar_pca(df):
     """Grafica los versículos en 2D con PCA (3.3).
@@ -98,7 +95,7 @@ def visualizar_pca(df):
 
 
 def buscar_semantico(df):
-    """Demuestra la búsqueda con una frase y un versículo real (3.4).
+    """Demuestra la búsqueda con una frase y un versículo real.
 
     Parámetros
     df : pandas.DataFrame
@@ -118,9 +115,8 @@ def buscar_semantico(df):
             print(f"  [{fila['similitud']:.3f}] {fila['nombre_libro']} "
                   f"{fila['numero_capitulo']}:{fila['numero_versiculo']} - {fila['texto_original']}")
 
-
 def clasificar_versiculos(df):
-    """Entrena y evalúa el clasificador de libro (3.5).
+    """Entrena y evalúa el clasificador de libro.
 
     Parámetros
     df : pandas.DataFrame
@@ -133,9 +129,8 @@ def clasificar_versiculos(df):
     clasificador.graficar_matriz_confusion(resultado)
     print("Matriz de confusión guardada en resultados/")
 
-
 def generar_texto(df):
-    """Entrena y compara los modelos de n-gramas (3.6).
+    """Entrena y compara los modelos de n-gramas.
 
     Parámetros
     df : pandas.DataFrame
@@ -157,9 +152,8 @@ def generar_texto(df):
         texto = modelo.generar_texto(palabra_inicial = palabra_inicial, longitud_maxima = 15)
         print(f"  {nombre}: {texto}")
 
-
 def analizar_sentimiento(df):
-    """Calcula el sentimiento por versículo y lo agrega por libro (3.7).
+    """Calcula el sentimiento por versículo y lo agrega por libro.
 
     Parámetros
     df : pandas.DataFrame
@@ -184,7 +178,6 @@ def analizar_sentimiento(df):
     visualizacion.evolucion_por_capitulo("Job")
     visualizacion.libros_extremos(10)
     print("Gráficos de sentimiento guardados en resultados/")
-
 
 def main():
     df = cargar_preprocesar()

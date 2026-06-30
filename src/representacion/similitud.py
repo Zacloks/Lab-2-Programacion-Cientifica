@@ -85,8 +85,7 @@ class SimilitudCoseno:
                 if normas[i] == 0 or normas[j] == 0:
                     similitud = 0.0
                 else:
-                    similitud = (self.producto_punto(vectores[i], vectores[j])
-                                 / (normas[i] * normas[j]))
+                    similitud = (self.producto_punto(vectores[i], vectores[j]) / (normas[i] * normas[j]))
                 matriz[i][j] = similitud
                 matriz[j][i] = similitud
 

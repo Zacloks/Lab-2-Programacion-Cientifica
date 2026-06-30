@@ -60,12 +60,9 @@ class VisualizacionYExplorador:
             Tabla con id_libro, nombre_libro y los tokens del libro, ordenada
             por id_libro.
         """
-        return (
-            self.df.groupby(["id_libro", "nombre_libro"], sort = True)["tokens"]
-            .agg(lambda series: [token for tokens in series for token in tokens])
-            .reset_index()
-            .sort_values("id_libro")
-            .reset_index(drop = True)
+        return (self.df.groupby(["id_libro", "nombre_libro"], sort = True)["tokens"]
+                .agg(lambda series: [token for tokens in series for token in tokens])
+            .reset_index().sort_values("id_libro").reset_index(drop = True)
         )
 
     def heatmap_similitud_libros(self):
@@ -85,9 +82,7 @@ class VisualizacionYExplorador:
         matriz_df = pd.DataFrame(matriz, index = nombres, columns = nombres)
 
         plt.figure(figsize = (16, 14))
-        sbn.heatmap(matriz_df, cmap = "magma", square = True,
-                    xticklabels = True, yticklabels = True,
-                    cbar_kws = {"label": "Similitud del coseno"})
+        sbn.heatmap(matriz_df, cmap = "magma", square = True, xticklabels = True, yticklabels = True, cbar_kws = {"label": "Similitud del coseno"})
         plt.title("Similitud del coseno entre libros (TF-IDF por libro)")
         plt.xlabel("Libro")
         plt.ylabel("Libro")
@@ -109,8 +104,7 @@ class VisualizacionYExplorador:
         frecuencias = [frecuencia for _, frecuencia in comunes]
 
         plt.figure(figsize = (12, 7))
-        sbn.barplot(x = frecuencias, y = palabras, hue = palabras,
-                    palette = "rocket", legend = False)
+        sbn.barplot(x = frecuencias, y = palabras, hue = palabras, palette = "rocket", legend = False)
         plt.title(f"Top {n} palabras más frecuentes del corpus")
         plt.xlabel("Frecuencia")
         plt.ylabel("Palabra")
