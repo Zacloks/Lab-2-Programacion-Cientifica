@@ -1,12 +1,11 @@
 from pathlib import Path
-
 import matplotlib.pyplot as plt
 import seaborn as sbn
+
 from scipy.sparse import csr_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.svm import LinearSVC
 from sklearn.metrics import accuracy_score, confusion_matrix
-
 from src.representacion.tfidf import VectorTF_IDF
 
 class ClasificadorVersiculos:

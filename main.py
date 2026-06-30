@@ -187,7 +187,6 @@ def analizar_sentimiento(df):
 
 
 def main():
-    """Ejecuta todas las etapas del laboratorio en orden."""
     df = cargar_preprocesar()
     analizar_vocabulario(df)
     demostrar_tfidf(df)
