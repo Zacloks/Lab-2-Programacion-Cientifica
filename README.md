@@ -69,7 +69,7 @@ Lab-2-Programacion-Cientifica/
 
 ---
 
-# Diagrama de Clases
+## Diagrama de Clases
 
 ```mermaid
 classDiagram
